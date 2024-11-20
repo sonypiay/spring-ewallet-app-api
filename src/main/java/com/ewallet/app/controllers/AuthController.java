@@ -27,9 +27,13 @@ public class AuthController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest authRequest) {
+    public ResponseEntity<ApiResponseSuccess<AuthResponse>> login(@Valid @RequestBody AuthRequest authRequest) {
         AuthResponse response = authService.login(authRequest.getEmail(), authRequest.getPassword());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponseSuccess.<AuthResponse>builder()
+                .data(response)
+                .message("Login success")
+                .build()
+        );
     }
 
     @PostMapping(
