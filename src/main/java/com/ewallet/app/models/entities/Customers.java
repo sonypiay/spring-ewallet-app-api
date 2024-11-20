@@ -34,6 +34,9 @@ public class Customers {
     @Column(length = 128, nullable = false)
     private String password;
 
+    @Column(length = 20)
+    private String phoneNumber;
+
     @Column(columnDefinition = "boolean", nullable = false)
     private boolean active = true;
 
@@ -45,4 +48,7 @@ public class Customers {
 
     @OneToOne(mappedBy = "customers")
     private Wallets wallets;
+
+    @OneToOne(mappedBy = "customers")
+    private PersonalTokens personalTokens;
 }
