@@ -10,6 +10,7 @@ import com.ewallet.app.models.requests.RegisterRequest;
 import com.ewallet.app.models.responses.AuthResponse;
 import com.ewallet.app.models.responses.RegisterResponse;
 import com.ewallet.app.security.BCrypt;
+import com.ewallet.app.utils.Base64EncodeDecode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,5 +99,18 @@ public class AuthService {
     @Transactional
     public void logout(String accessToken) {
         personalTokensRepository.deleteByAccessToken(accessToken);
+    }
+
+    public String[] parsingAccessToken(String data) {
+        String parsingAuthorization = data.replace("Basic ", "");
+        return Base64EncodeDecode.decode(parsingAuthorization).split(":");
+    }
+
+    public String getToken(String data) {
+        return this.parsingAccessToken(data)[1];
+    }
+
+    public String getCustomerId(String data) {
+        return this.parsingAccessToken(data)[0];
     }
 }

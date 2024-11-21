@@ -16,5 +16,7 @@ public interface CustomersRepository extends JpaRepository<Customers, String> {
     @Query("select c from customers as c where c.id = ?1 AND c.personalTokens.accessToken = ?2")
     Optional<Customers> findByAccessToken(String customerId, String accessToken);
 
-    boolean existsByEmail(@Param("email") String email);
+    boolean existsByEmail(String email);
+
+    boolean existsByEmailAndIdNot(String email, String id);
 }

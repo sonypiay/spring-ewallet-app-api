@@ -1,20 +1,24 @@
 package com.ewallet.app.controllers;
 
 import com.ewallet.app.exceptions.UnauthorizedException;
+import com.ewallet.app.models.requests.UpdateCustomerRequest;
 import com.ewallet.app.models.responses.CustomersResponse;
+import com.ewallet.app.services.AuthService;
 import com.ewallet.app.services.CustomersService;
 import com.ewallet.app.utils.ApiResponseSuccess;
 import com.ewallet.app.utils.Base64EncodeDecode;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/customers")
 public class CustomerController {
+
+    @Autowired
+    private AuthService authService;
 
     @Autowired
     private CustomersService customersService;
@@ -34,6 +38,25 @@ public class CustomerController {
 
         return ResponseEntity.ok(ApiResponseSuccess.<CustomersResponse>builder()
                 .data(customersResponse)
+                .message("success")
+                .build()
+        );
+    }
+
+    @PutMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ApiResponseSuccess<CustomersResponse>> updateProfile(
+            @Valid @RequestBody UpdateCustomerRequest request,
+            @RequestHeader("Authorization") String Authorization
+            )
+    {
+        String customerId = authService.getCustomerId(Authorization);
+        CustomersResponse response = customersService.update(request, customerId);
+
+        return ResponseEntity.ok(ApiResponseSuccess.<CustomersResponse>builder()
+                .data(response)
                 .message("success")
                 .build()
         );
