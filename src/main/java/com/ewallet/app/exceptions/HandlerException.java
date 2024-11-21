@@ -5,6 +5,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -51,6 +52,17 @@ public class HandlerException {
     public ResponseEntity<ApiResponseError<String>> unauthorizedException(UnauthorizedException exception) {
         return ResponseEntity
                 .status(exception.getStatus())
+                .body(ApiResponseError.<String>builder()
+                        .errors("Unauthorized")
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ApiResponseError<String>> missingHeader(MissingRequestHeaderException exception) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponseError.<String>builder()
                         .message(exception.getMessage())
                         .build()

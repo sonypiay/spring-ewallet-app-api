@@ -54,9 +54,11 @@ public class AuthController {
 
     @DeleteMapping("/logout")
     public ResponseEntity<ApiResponseSuccess<String>> logout(@RequestHeader String Authorization) {
-        String getAccessToken = Authorization.replace("Basic ", "");
-        String decodeAccessToken = Base64EncodeDecode.decode(getAccessToken);
-        authService.logout(decodeAccessToken);
+        String parsingAuthorization = Authorization.replace("Basic ", "");
+        String[] decodeToken = Base64EncodeDecode.decode(parsingAuthorization).split(":");
+        String accessToken = decodeToken[1];
+
+        authService.logout(accessToken);
 
         return ResponseEntity.ok(ApiResponseSuccess.<String>builder()
                 .message("Logout success")

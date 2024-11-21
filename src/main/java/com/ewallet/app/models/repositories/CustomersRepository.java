@@ -11,4 +11,7 @@ public interface CustomersRepository extends JpaRepository<Customers, String> {
 
     @Query("select c from customers as c where email = ?1")
     Optional<Customers> findByEmail(String email);
+
+    @Query("select c from customers as c where c.id = ?1 AND c.personalTokens.accessToken = ?2")
+    Optional<Customers> findByAccessToken(String customerId, String accessToken);
 }

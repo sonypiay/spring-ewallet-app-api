@@ -64,7 +64,7 @@ public class AuthService {
         if( ! verifyPassword ) throw new UnauthorizedException("Email atau password salah");
 
         String accessToken = UUID.randomUUID().toString();
-        Long tokenExpiredAt = System.currentTimeMillis() + (1000 * 60 * 60 * 24 * 30);
+        Long tokenExpiredAt = System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30);
 
         PersonalTokens personalTokens = personalTokensRepository.findByCustomerId(customers.getId());
 
@@ -79,8 +79,8 @@ public class AuthService {
 
         personalTokensRepository.save(personalTokens);
 
-//        String combineToken = customers.getId() + ":" + personalTokens.getAccessToken() + ":" + customers.getPassword();
-        String encodeAccessToken = Base64.getEncoder().encodeToString(accessToken.getBytes());
+        String combineToken = customers.getId() + ":" + personalTokens.getAccessToken();
+        String encodeAccessToken = Base64.getEncoder().encodeToString(combineToken.getBytes());
 
         return AuthResponse.builder()
                 .accessToken(encodeAccessToken)
