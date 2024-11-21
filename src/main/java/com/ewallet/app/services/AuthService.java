@@ -1,5 +1,6 @@
 package com.ewallet.app.services;
 
+import com.ewallet.app.exceptions.BadRequestException;
 import com.ewallet.app.exceptions.UnauthorizedException;
 import com.ewallet.app.models.entities.PersonalTokens;
 import com.ewallet.app.models.repositories.PersonalTokensRepository;
@@ -28,6 +29,12 @@ public class AuthService {
 
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
+        boolean isEmailExists = customersRepository.existsByEmail(request.getEmail());
+
+        if(isEmailExists) {
+            throw new BadRequestException("Email " + request.getEmail() + " sudah terdaftar");
+        }
+
         String hashPassword = BCrypt.hashpw(
                 request.getPassword(),
                 BCrypt.gensalt()
