@@ -9,6 +9,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface PersonalTokensRepository extends JpaRepository<PersonalTokens, String> {
+
+    @Query("select u from personal_tokens u where u.customers.id = :customer_id")
+    PersonalTokens findByCustomerId(@Param("customer_id") String customerId);
+
     @Modifying
     @Query("delete from personal_tokens where accessToken = :accessToken")
     void deleteByAccessToken(@Param("accessToken") String accessToken);
