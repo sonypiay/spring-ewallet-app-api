@@ -12,11 +12,10 @@ import com.ewallet.app.security.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
-import java.util.Base64;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @Service
 public class AuthService {
@@ -81,11 +80,16 @@ public class AuthService {
         personalTokensRepository.save(personalTokens);
 
 //        String combineToken = customers.getId() + ":" + personalTokens.getAccessToken() + ":" + customers.getPassword();
-//        String encodeAccessToken = Base64.getEncoder().encodeToString(combineToken.getBytes());
+        String encodeAccessToken = Base64.getEncoder().encodeToString(accessToken.getBytes());
 
         return AuthResponse.builder()
-                .accessToken(personalTokens.getAccessToken())
+                .accessToken(encodeAccessToken)
                 .expiredAt(personalTokens.getExpiredAt())
                 .build();
+    }
+
+    @Transactional
+    public void logout(String accessToken) {
+        personalTokensRepository.deleteByAccessToken(accessToken);
     }
 }

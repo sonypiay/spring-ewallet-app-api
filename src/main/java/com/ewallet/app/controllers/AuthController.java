@@ -10,10 +10,10 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -47,6 +47,20 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponseSuccess.<RegisterResponse>builder()
                 .data(registerResponse)
                 .message("success")
+                .build()
+        );
+    }
+
+    @DeleteMapping("/logout")
+    public ResponseEntity<ApiResponseSuccess<String>> logout(@RequestHeader String Authorization) {
+        String getToken = Authorization.replace("Basic ", "");
+        byte[] decodeByteToken = Base64.getDecoder().decode(getToken);
+        String decodeAccessToken = new String(decodeByteToken);
+
+        authService.logout(decodeAccessToken);
+
+        return ResponseEntity.ok(ApiResponseSuccess.<String>builder()
+                .message("Logout success")
                 .build()
         );
     }
