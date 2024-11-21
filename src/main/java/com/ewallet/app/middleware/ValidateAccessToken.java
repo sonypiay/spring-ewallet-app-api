@@ -3,20 +3,21 @@ package com.ewallet.app.middleware;
 import com.ewallet.app.exceptions.UnauthorizedException;
 import com.ewallet.app.models.entities.PersonalTokens;
 import com.ewallet.app.models.repositories.PersonalTokensRepository;
-import com.ewallet.app.utils.Base64EncodeDecode;
+import com.ewallet.app.services.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.Arrays;
-
 @Component
 public class ValidateAccessToken implements HandlerInterceptor {
 
     @Autowired
     private PersonalTokensRepository personalTokensRepository;
+
+    @Autowired
+    private AuthService authService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -26,10 +27,8 @@ public class ValidateAccessToken implements HandlerInterceptor {
             throw new UnauthorizedException("You are not logged in");
         }
 
-        String parsingAuthorization = getAuthorization.replace("Basic ", "");
-        String[] decodeToken = Base64EncodeDecode.decode(parsingAuthorization).split(":");
-        String customerId = decodeToken[0];
-        String accessToken = decodeToken[1];
+        String customerId = authService.getCustomerId(getAuthorization);
+        String accessToken = authService.getToken(getAuthorization);
 
         PersonalTokens personalTokens = personalTokensRepository.findByAccessTokenAndCustomerId(accessToken, customerId)
                 .orElseThrow(() -> new UnauthorizedException("You are not logged in"));

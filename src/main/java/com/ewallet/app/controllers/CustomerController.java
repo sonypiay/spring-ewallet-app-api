@@ -6,7 +6,6 @@ import com.ewallet.app.models.responses.CustomersResponse;
 import com.ewallet.app.services.AuthService;
 import com.ewallet.app.services.CustomersService;
 import com.ewallet.app.utils.ApiResponseSuccess;
-import com.ewallet.app.utils.Base64EncodeDecode;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -25,10 +24,8 @@ public class CustomerController {
 
     @GetMapping
     public ResponseEntity<ApiResponseSuccess<CustomersResponse>> showProfile(@RequestHeader("Authorization") String Authorization) {
-        String parsingAuthorization = Authorization.replace("Basic ", "");
-        String[] decodeToken = Base64EncodeDecode.decode(parsingAuthorization).split(":");
-        String customerId = decodeToken[0];
-        String accessToken = decodeToken[1];
+        String customerId = authService.getCustomerId(Authorization);
+        String accessToken = authService.getToken(Authorization);
 
         if( customerId == null && accessToken == null ) {
             throw new UnauthorizedException("Missing token");
