@@ -6,6 +6,7 @@ import com.ewallet.app.models.responses.AuthResponse;
 import com.ewallet.app.models.responses.RegisterResponse;
 import com.ewallet.app.services.AuthService;
 import com.ewallet.app.utils.ApiResponseSuccess;
+import com.ewallet.app.utils.Base64EncodeDecode;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -53,10 +54,8 @@ public class AuthController {
 
     @DeleteMapping("/logout")
     public ResponseEntity<ApiResponseSuccess<String>> logout(@RequestHeader String Authorization) {
-        String getToken = Authorization.replace("Basic ", "");
-        byte[] decodeByteToken = Base64.getDecoder().decode(getToken);
-        String decodeAccessToken = new String(decodeByteToken);
-
+        String getAccessToken = Authorization.replace("Basic ", "");
+        String decodeAccessToken = Base64EncodeDecode.decode(getAccessToken);
         authService.logout(decodeAccessToken);
 
         return ResponseEntity.ok(ApiResponseSuccess.<String>builder()
