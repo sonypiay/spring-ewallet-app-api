@@ -1,13 +1,10 @@
 package com.ewallet.app.models.enums;
 
 public enum TransactionsType {
-    /**
-     * Transaksi masuk
-     */
-    IN,
+    IN("in"),
+    OUT("out");
 
-    /**
-     * Transaksi keluar
-     */
-    OUT
+    TransactionsType(String values) {
+
+    }
 }

@@ -33,7 +33,7 @@ public class Transactions {
     private String trxNumber;
 
     @Column(name = "type", columnDefinition = "enum")
-    private Enum<TransactionsType> transactionsType;
+    private String transactionsType;
 
     @Column(length = 20, nullable = false, updatable = false)
     private Long amount;
