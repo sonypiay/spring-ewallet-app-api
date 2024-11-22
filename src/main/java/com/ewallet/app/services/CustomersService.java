@@ -3,10 +3,12 @@ package com.ewallet.app.services;
 import com.ewallet.app.exceptions.BadRequestException;
 import com.ewallet.app.exceptions.NotFoundException;
 import com.ewallet.app.exceptions.UnauthorizedException;
+import com.ewallet.app.models.requests.ChangePasswordRequest;
 import com.ewallet.app.models.requests.UpdateCustomerRequest;
 import com.ewallet.app.models.responses.CustomersResponse;
 import com.ewallet.app.models.entities.Customers;
 import com.ewallet.app.models.repositories.CustomersRepository;
+import com.ewallet.app.security.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,5 +62,27 @@ public class CustomersService {
         customersRepository.save(customers);
 
         return toResponse(customers);
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request, String customerId) {
+        Customers customers = customersRepository.findById(customerId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        boolean verifyOldPassword = BCrypt.checkpw(request.getOldPassword(), customers.getPassword());
+        boolean verifyNewPassword = request.getConfirmPassword().equals(request.getNewPassword());
+
+        if(!verifyOldPassword || !verifyNewPassword) {
+            throw new BadRequestException("Password did not match!");
+        }
+
+        String hashPassword = BCrypt.hashpw(
+                request.getNewPassword(),
+                BCrypt.gensalt()
+        );
+
+        customers.setPassword(hashPassword);
+        customers.setUpdatedAt(new Date());
+        customersRepository.save(customers);
     }
 }

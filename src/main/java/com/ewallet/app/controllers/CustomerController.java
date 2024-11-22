@@ -1,6 +1,7 @@
 package com.ewallet.app.controllers;
 
 import com.ewallet.app.exceptions.UnauthorizedException;
+import com.ewallet.app.models.requests.ChangePasswordRequest;
 import com.ewallet.app.models.requests.UpdateCustomerRequest;
 import com.ewallet.app.models.responses.CustomersResponse;
 import com.ewallet.app.services.AuthService;
@@ -55,6 +56,21 @@ public class CustomerController {
         return ResponseEntity.ok(ApiResponseSuccess.<CustomersResponse>builder()
                 .data(response)
                 .message("success")
+                .build()
+        );
+    }
+
+    @PatchMapping(
+            path = "/change-password",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ApiResponseSuccess<String>> changePassword(@Valid @RequestBody ChangePasswordRequest request, @RequestHeader("Authorization") String Authorization) {
+        String customerId = authService.getCustomerId(Authorization);
+
+        customersService.changePassword(request, customerId);
+
+        return ResponseEntity.ok(ApiResponseSuccess.<String>builder()
+                .message("Change Password Success")
                 .build()
         );
     }
