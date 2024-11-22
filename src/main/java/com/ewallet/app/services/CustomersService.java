@@ -44,7 +44,7 @@ public class CustomersService {
     @Transactional
     public CustomersResponse update(UpdateCustomerRequest request, String customerId) {
         Customers customers = customersRepository.findById(customerId)
-                .orElseThrow(() -> new NotFoundException("Data not found"));
+                .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
 
         boolean isEmailExists = customersRepository.existsByEmailAndIdNot(request.getEmail(), customerId);
 
@@ -66,13 +66,13 @@ public class CustomersService {
     @Transactional
     public void changePassword(ChangePasswordRequest request, String customerId) {
         Customers customers = customersRepository.findById(customerId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User tidak ditemukan!"));
 
         boolean verifyOldPassword = BCrypt.checkpw(request.getOldPassword(), customers.getPassword());
         boolean verifyNewPassword = request.getConfirmPassword().equals(request.getNewPassword());
 
         if(!verifyOldPassword || !verifyNewPassword) {
-            throw new BadRequestException("Password did not match!");
+            throw new BadRequestException("Password salah!");
         }
 
         String hashPassword = BCrypt.hashpw(
