@@ -1,7 +1,6 @@
 package com.ewallet.app.services;
 
 import com.ewallet.app.exceptions.NotFoundException;
-import com.ewallet.app.models.entities.Customers;
 import com.ewallet.app.models.entities.Transactions;
 import com.ewallet.app.models.entities.Wallets;
 import com.ewallet.app.models.enums.TransactionsType;
@@ -32,10 +31,7 @@ public class TransactionsService {
 
     @Transactional
     public DepositResponse deposit(DepositRequest request, String customerId) {
-        Customers customers = customersRepository.findById(customerId)
-                .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
-
-        Wallets getWallet = walletsRepository.findByAccountNumberAndCustomers(request.getAccountNumber(), customers)
+        Wallets getWallet = walletsRepository.findByAccountNumberAndCustomersForUpdate(request.getAccountNumber(), customerId)
                 .orElseThrow(() -> new NotFoundException("Nomor akun tidak ditemukan"));
 
         Random random = new Random();
