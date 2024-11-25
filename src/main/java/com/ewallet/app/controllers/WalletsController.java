@@ -2,6 +2,7 @@ package com.ewallet.app.controllers;
 
 import com.ewallet.app.models.requests.CreateWalletRequest;
 import com.ewallet.app.models.requests.SetWalletPinRequest;
+import com.ewallet.app.models.requests.UpdateWalletPinRequest;
 import com.ewallet.app.models.requests.UpdateWalletRequest;
 import com.ewallet.app.models.responses.WalletResponse;
 import com.ewallet.app.services.AuthService;
@@ -93,6 +94,25 @@ public class WalletsController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseSuccess.<WalletResponse>builder()
                 .data(response)
                 .message("OK")
+                .build()
+        );
+    }
+
+    @PatchMapping(
+            path = "/change-pin/{accountNumber}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ApiResponseSuccess<WalletResponse>> changePin(
+            @PathVariable("accountNumber") String accountNumber,
+            @Valid @RequestBody UpdateWalletPinRequest pinRequest,
+            @RequestHeader("Authorization") String Authorization
+    ) {
+        String customerId = authService.getCustomerId(Authorization);
+        walletsService.changePin(pinRequest, accountNumber, customerId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseSuccess.<WalletResponse>builder()
+                .message("Change pin success")
                 .build()
         );
     }

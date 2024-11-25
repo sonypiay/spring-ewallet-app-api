@@ -8,6 +8,7 @@ import com.ewallet.app.models.repositories.CustomersRepository;
 import com.ewallet.app.models.repositories.WalletsRepository;
 import com.ewallet.app.models.requests.CreateWalletRequest;
 import com.ewallet.app.models.requests.SetWalletPinRequest;
+import com.ewallet.app.models.requests.UpdateWalletPinRequest;
 import com.ewallet.app.models.requests.UpdateWalletRequest;
 import com.ewallet.app.models.responses.WalletResponse;
 import com.ewallet.app.security.BCrypt;
@@ -102,5 +103,21 @@ public class WalletsService {
         walletsRepository.save(wallets);
 
         return toResponse(wallets);
+    }
+
+    @Transactional
+    public void changePin(UpdateWalletPinRequest pinRequest, String accountNumber, String customerId) {
+        Wallets wallets = walletsRepository.findByAccountNumberAndCustomersForUpdate(accountNumber, customerId)
+                .orElseThrow(() -> new NotFoundException("Wallet tidak ditemukan"));
+
+        boolean confirmPin = pinRequest.getConfirmPin().equals(pinRequest.getNewPin());
+        boolean verifyOldPin = BCrypt.checkpw(pinRequest.getOldPin(), wallets.getPinCode());
+
+        if( ! verifyOldPin ) throw new BadRequestException("Nomor pin lama anda salah");
+        if( ! confirmPin ) throw new BadRequestException("Nomor pin anda salah");
+
+        String hashPinCode = BCrypt.hashpw(pinRequest.getNewPin(), BCrypt.gensalt());
+        wallets.setPinCode(hashPinCode);
+        walletsRepository.save(wallets);
     }
 }
