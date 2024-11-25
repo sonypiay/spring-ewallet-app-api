@@ -32,6 +32,9 @@ public class Wallets {
     @Column(name = "account_number", length = 30, nullable = false, updatable = false)
     private String accountNumber;
 
+    @Column(name = "account_name")
+    private String accountName;
+
     @Column(name = "pin_code", length = 64, nullable = false)
     private String pinCode;
 

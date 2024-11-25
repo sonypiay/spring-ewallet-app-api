@@ -19,6 +19,8 @@ public class WalletResponse {
 
     private String accountNumber;
 
+    private String accountName;
+
     private boolean active;
 
     private Date createdAt;

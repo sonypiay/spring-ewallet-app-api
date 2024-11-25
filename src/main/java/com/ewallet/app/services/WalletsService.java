@@ -6,7 +6,9 @@ import com.ewallet.app.models.entities.Customers;
 import com.ewallet.app.models.entities.Wallets;
 import com.ewallet.app.models.repositories.CustomersRepository;
 import com.ewallet.app.models.repositories.WalletsRepository;
+import com.ewallet.app.models.requests.CreateWalletRequest;
 import com.ewallet.app.models.requests.SetWalletPinRequest;
+import com.ewallet.app.models.requests.UpdateWalletRequest;
 import com.ewallet.app.models.responses.WalletResponse;
 import com.ewallet.app.security.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ public class WalletsService {
         return WalletResponse.builder()
                 .id(wallets.getId())
                 .accountNumber(wallets.getAccountNumber())
+                .accountName(wallets.getAccountName())
                 .balance(wallets.getBalance())
                 .active(wallets.isActive())
                 .createdAt(wallets.getCreatedAt())
@@ -36,7 +39,7 @@ public class WalletsService {
     }
 
     @Transactional
-    public WalletResponse create(SetWalletPinRequest request, String customerId) {
+    public WalletResponse create(CreateWalletRequest request, String customerId) {
         Customers customers = customersRepository.findById(customerId)
                 .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
 
@@ -53,6 +56,7 @@ public class WalletsService {
         wallets.setBalance(0L);
         wallets.setCreatedAt(new Date());
         wallets.setAccountNumber(accountNumber);
+        wallets.setAccountName(request.getAccountName());
         wallets.setPinCode(hashPinCode);
         wallets.setUpdatedAt(new Date());
         wallets.setActive(true);
@@ -82,5 +86,21 @@ public class WalletsService {
 
         List<Wallets> wallets = walletsRepository.findAllByCustomers(customers);
         return wallets.stream().map(this::toResponse).toList();
+    }
+
+    @Transactional
+    public WalletResponse updateWallet(UpdateWalletRequest request, String customerId) {
+        Customers customers = customersRepository.findById(customerId)
+                .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
+
+        Wallets wallets = walletsRepository.findByAccountNumberAndCustomersForUpdate(request.getAccountNumber(), customerId)
+                .orElseThrow(() -> new NotFoundException("Wallet tidak ditemukan"));
+
+        wallets.setUpdatedAt(new Date());
+        wallets.setAccountName(request.getAccountName());
+        wallets.setCustomers(customers);
+        walletsRepository.save(wallets);
+
+        return toResponse(wallets);
     }
 }
