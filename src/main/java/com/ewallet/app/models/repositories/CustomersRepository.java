@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public interface CustomersRepository extends JpaRepository<Customers, String> {
 
-    @Query("select c from customers as c where email = ?1")
-    Optional<Customers> findByEmail(String email);
+    @Query("select c from customers as c where email = :email")
+    Optional<Customers> findByEmail(@Param("email") String email);
 
-    @Query("select c from customers as c where c.id = ?1 AND c.personalTokens.accessToken = ?2")
-    Optional<Customers> findByAccessToken(String customerId, String accessToken);
+    @Query("select c from customers as c where c.id = :customerId AND c.personalTokens.accessToken = :accessToken")
+    Optional<Customers> findByAccessToken(@Param("customerId") String customerId, @Param("accessToken") String accessToken);
 
     boolean existsByEmail(String email);
 
