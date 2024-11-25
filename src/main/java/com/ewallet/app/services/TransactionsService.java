@@ -1,5 +1,6 @@
 package com.ewallet.app.services;
 
+import com.ewallet.app.exceptions.BadRequestException;
 import com.ewallet.app.exceptions.NotFoundException;
 import com.ewallet.app.models.entities.Transactions;
 import com.ewallet.app.models.entities.Wallets;
@@ -8,7 +9,9 @@ import com.ewallet.app.models.repositories.CustomersRepository;
 import com.ewallet.app.models.repositories.TransactionsRepository;
 import com.ewallet.app.models.repositories.WalletsRepository;
 import com.ewallet.app.models.requests.DepositRequest;
+import com.ewallet.app.models.requests.WithdrawRequest;
 import com.ewallet.app.models.responses.DepositResponse;
+import com.ewallet.app.models.responses.WithdrawResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +60,36 @@ public class TransactionsService {
                 .balance(totalBalance)
                 .trxNumber(transactions.getTrxNumber())
                 .notes(transactions.getNotes())
+                .build();
+    }
+
+    @Transactional
+    public WithdrawResponse withdraw(WithdrawRequest request, String customerId ) {
+        Wallets getWallet = walletsRepository.findByAccountNumberAndCustomersForUpdate(request.getAccountNumber(), customerId)
+                .orElseThrow(() -> new NotFoundException("Nomor akun tidak ditemukan"));
+
+        Random random = new Random();
+        String trxNumber = String.valueOf(random.nextLong(100000000000000L));
+        Long currentBalance = getWallet.getBalance();
+        Long totalBalance = currentBalance + request.getAmount();
+
+        if( totalBalance < 0 ) throw new BadRequestException("Saldo anda tidak mencukupi");
+
+        Transactions transactions = new Transactions();
+        transactions.setId(UUID.randomUUID().toString());
+        transactions.setTrxNumber(trxNumber);
+        transactions.setAmount(request.getAmount());
+        transactions.setTransactionsType(TransactionsType.OUT.name().toLowerCase());
+        transactions.setWallets(getWallet);
+        transactions.setCreatedAt(new Date());
+        transactionsRepository.save(transactions);
+
+        getWallet.setBalance(totalBalance);
+        walletsRepository.save(getWallet);
+
+        return WithdrawResponse.builder()
+                .balance(totalBalance)
+                .trxNumber(transactions.getTrxNumber())
                 .build();
     }
 }

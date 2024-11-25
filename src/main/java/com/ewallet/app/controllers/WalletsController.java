@@ -1,21 +1,17 @@
 package com.ewallet.app.controllers;
 
-import com.ewallet.app.models.requests.DepositRequest;
 import com.ewallet.app.models.requests.SetWalletPinRequest;
-import com.ewallet.app.models.responses.DepositResponse;
 import com.ewallet.app.models.responses.WalletResponse;
 import com.ewallet.app.services.AuthService;
 import com.ewallet.app.services.WalletsService;
 import com.ewallet.app.utils.ApiResponseSuccess;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/wallets")
